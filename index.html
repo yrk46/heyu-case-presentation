@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173b50">
+  <title>不是不会说，而是不敢被别人听见｜何宇案例 · 闯关式翻页展示（12 分钟）</title>
+  <style>
+    :root {
+      --bg:#f6f6f3; --paper:#fffdf9; --ink:#1d2b38; --navy:#173b50; --teal:#1b8fa3; --orange:#f0932b; --yellow:#f6c95d; --red:#d85c5c; --green:#2d9b7a; --muted:#5c6775; --line:#e7dfd1; --shadow:0 14px 34px rgba(18,38,55,.12);
+    }
+    * { box-sizing:border-box }
+    html,body { margin:0; padding:0; font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif; background:linear-gradient(180deg,#eef2ee,#f8f5ef 18%,#f8f4ee); color:var(--ink); }
+    body { min-height:100vh; }
+    a { color:inherit; text-decoration:none }
+    button,input,textarea { font:inherit }
+    .topbar {
+      position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:14px;
+      padding:12px 18px; background:rgba(22,41,58,.9); backdrop-filter:blur(12px); box-shadow:0 10px 25px rgba(20,35,48,.12);
+    }
+    .brand { display:flex; align-items:center; gap:12px; color:#fff; flex:1; min-width:0; }
+    .brand-mark { display:grid; place-items:center; width:42px; height:42px; border-radius:14px; background:linear-gradient(135deg,#78d4d0,#2f9bb6); font-size:1.4rem; font-weight:800; color:#0d2434; }
+    .brand b { display:block; font-size:0.96rem; }
+    .brand small { display:block; color:rgba(255,255,255,.82); margin-top:2px; font-size:0.72rem }
+    .badge-pill, .timer-chip, .btn-top, .navbtn, .btn, .vote-option, .chip, .resp-card, .step-card, .flip, .card, .faq {
+      transition:.2s ease; }
+    .badge-pill { display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:999px; background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.14); font-weight:700; }
+    .timer-chip { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#fff; border-radius:999px; padding:9px 14px; cursor:pointer; }
+    .t-stage { font-size:0.8rem; opacity:0.9 }
+    .t-time { font-weight:800; font-size:1.1rem }
+    .btn-top, .btn, .navbtn {
+      border:1px solid rgba(255,255,255,.18); background:#fff; color:var(--ink); border-radius:12px; padding:10px 14px; cursor:pointer; font-weight:700; }
+    .btn.primary { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .btn.orange { background:var(--orange); color:#fff; border-color:var(--orange); }
+    .btn.ghost { background:transparent; color:var(--ink); border-color:rgba(23,59,80,.2); }
+    .deck-progress { position:sticky; top:72px; z-index:24; height:4px; background:rgba(23,59,80,.08); }
+    .deck-progress::before { content:""; display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--navy),var(--teal),var(--orange)); }
+    .deck { max-width:1280px; margin:0 auto; padding:18px 24px 90px; }
+    .slide { display:none; padding:30px 0; }
+    .slide.active { display:block; }
+    .wrap { max-width:1180px; margin:0 auto; }
+    .slide-head { display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:20px; }
+    .kicker { display:inline-block; background:rgba(27,143,163,.12); color:var(--teal); font-size:.74rem; letter-spacing:.08em; text-transform:uppercase; font-weight:800; padding:6px 10px; border-radius:999px; }
+    .kicker.level { background:rgba(240,147,43,.12); color:var(--orange); }
+    h1,h2,h3,h4,h5,p { margin:0 0 .7em }
+    h1 { font-size:clamp(2.3rem,4vw,4.2rem); line-height:1.05; }
+    h2 { font-size:clamp(1.8rem,2.4vw,2.7rem); }
+    .cover h1 span { color:var(--teal); }
+    .cover-eyebrow { color:var(--muted); letter-spacing:.08em; text-transform:uppercase; font-size:.72rem; font-weight:700; }
+    .cover-lead { max-width:820px; font-size:1.05rem; line-height:1.8; color:var(--navy); }
+    .meta-strip { display:grid; grid-template-columns:repeat(2,minmax(200px,1fr)); gap:12px; margin:22px 0; }
+    .meta-item { background:rgba(255,255,255,.7); border:1px solid var(--line); border-left:4px solid var(--teal); padding:14px 16px; border-radius:16px; box-shadow:var(--shadow); }
+    .meta-item span { display:block; color:var(--muted); font-size:.73rem; text-transform:uppercase; letter-spacing:.08em; }
+    .meta-item strong { display:block; margin-top:6px; font-size:1rem; }
+    .start-hint { color:var(--muted); font-size:.9rem }
+    kbd { background:#fff; border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:2px 8px; font-family:inherit; }
+    .cover .wrap { display:grid; grid-template-columns:1.3fr .7fr; gap:28px; align-items:center; }
+    .cover-fig img, .figure-block img { width:100%; border-radius:18px; box-shadow:var(--shadow); object-fit:cover; }
+    .figure-block { margin:0; }
+    figcaption { color:var(--muted); font-size:.82rem; margin-top:10px; }
+    .split { display:grid; grid-template-columns:1.1fr 1fr; gap:22px; align-items:start; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,minmax(150px,1fr)); gap:12px; }
+    .grid-2 { display:grid; grid-template-columns:repeat(2,minmax(220px,1fr)); gap:14px; }
+    .card { background:rgba(255,255,255,.84); border:1px solid var(--line); border-radius:18px; padding:18px 16px; box-shadow:var(--shadow); }
+    .card h4 { font-size:1.14rem; margin-bottom:8px; }
+    .card ul { margin:0; padding-left:1.1rem; line-height:1.7; }
+    .stat { font-size:1.6rem; font-weight:800; color:var(--navy); }
+    .softmint { background:linear-gradient(180deg,#effcf8,#f5fffc); }
+    .softblue { background:linear-gradient(180deg,#f2f9ff,#f8fbff); }
+    .softpink { background:linear-gradient(180deg,#fff3f6,#fff9fb); }
+    .time-chip { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px; background:#fff; border:1px solid var(--line); box-shadow:var(--shadow); font-size:.86rem; color:var(--navy); }
+    .badge { display:inline-block; background:rgba(23,59,80,.08); color:var(--navy); border-radius:999px; padding:8px 10px; font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .tag { display:inline-block; border-radius:999px; padding:5px 8px; font-size:0.7rem; font-weight:800; margin-bottom:10px; }
+    .tag.fact { background:rgba(27,143,163,.12); color:var(--teal); }
+    .tag.infer { background:rgba(240,147,43,.12); color:var(--orange); }
+    .tag.unknown { background:rgba(110,127,140,.12); color:var(--muted); }
+    .lab { background:rgba(255,255,255,.74); border:1px solid var(--line); border-radius:22px; padding:18px 18px 20px; box-shadow:var(--shadow); }
+    .lab-head { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:12px; }
+    .lab-head h3 { margin:0; font-size:1.25rem; }
+    .lab-head p { margin:4px 0 0; color:var(--muted); }
+    .lab-pill { display:inline-block; padding:8px 10px; background:rgba(23,59,80,.07); border-radius:999px; color:var(--navy); font-size:.72rem; font-weight:800; }
+    .vote-grid { display:grid; grid-template-columns:repeat(2, minmax(220px,1fr)); gap:12px; }
+    .vote-option { width:100%; background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px 14px 12px; text-align:left; cursor:pointer; }
+    .vote-option:hover, .vote-option.selected { border-color:var(--navy); box-shadow:0 8px 16px rgba(23,59,80,.10); transform:translateY(-1px); }
+    .vote-opt-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .vote-letter { display:grid; place-items:center; width:28px; height:28px; border-radius:10px; background:var(--navy); color:#fff; font-weight:800; }
+    .vote-opt-title { font-weight:800; font-size:1rem; }
+    .vote-opt-desc { color:var(--muted); font-size:.83rem; line-height:1.5; margin:0 0 10px; }
+    .vote-bar-track { width:100%; height:8px; background:#eef0f3; border-radius:999px; overflow:hidden; }
+    .vote-bar-fill { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--teal),var(--navy)); }
+    .vote-percent { font-size:.72rem; color:var(--navy); font-weight:800; margin-top:6px; }
+    .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .reveal-box { margin-top:18px; padding:16px; border-radius:16px; background:linear-gradient(180deg,#fffaf0,#fffdf9); border:1px solid rgba(240,147,43,.3); }
+    .score-line { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; font-weight:800; color:var(--navy); }
+    #sortList { display:grid; gap:12px; }
+    .sort-item { display:grid; grid-template-columns: 1fr auto; gap:14px; background:rgba(255,255,255,.75); border:1px solid var(--line); border-radius:14px; padding:14px 16px; align-items:center; }
+    .sort-item .statement { font-size:0.95rem; line-height:1.55; }
+    .sort-item .actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .sort-item button { padding:9px 12px; border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer; font-weight:700; }
+    .sort-item button.correct { background:rgba(45,155,122,.12); border-color:rgba(45,155,122,.3); color:var(--green); }
+    .sort-item button.wrong { background:rgba(216,92,92,.08); border-color:rgba(216,92,92,.25); color:var(--red); }
+    .verdict { margin-top:16px; padding:14px 16px; border-radius:14px; background:#f5f8fb; border:1px solid var(--line); color:var(--ink); }
+    .callout { background:#fffef7; border:1px solid rgba(246,201,93,.4); border-left:6px solid var(--yellow); border-radius:16px; padding:14px 16px; margin-top:14px; }
+    .callout.red { border-left-color:var(--red); background:rgba(216,92,92,.06); }
+    .callout.orange { border-left-color:var(--orange); background:rgba(240,147,43,.08); }
+    .callout.yellow { border-left-color:var(--yellow); background:rgba(246,201,93,.1); }
+    .flipgrid { display:grid; grid-template-columns:1fr; gap:12px; }
+    .flip { perspective:1000px; cursor:pointer; }
+    .flipinner { position:relative; width:100%; min-height:170px; transform-style:preserve-3d; transition:transform .7s ease; }
+    .flip.is-flipped .flipinner { transform:rotateY(180deg); }
+    .flipfront, .flipback { position:absolute; inset:0; border-radius:16px; padding:18px; backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; border:1px solid var(--line); background:linear-gradient(180deg,#ffffff,#f6f8fb); box-shadow:var(--shadow); }
+    .flipback { transform:rotateY(180deg); background:linear-gradient(180deg,#eefbf8,#f5fbff); }
+    .flipfront span { display:block; color:var(--muted); margin-top:10px; }
+    .sim-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; }
+    .sim-control { background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px; }
+    .sim-control h4 { margin:0 0 10px; font-size:1rem; }
+    .chip-row { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { background:#f4f6f8; border:1px solid var(--line); color:var(--ink); border-radius:999px; padding:9px 12px; font-weight:700; cursor:pointer; }
+    .chip.on { background:rgba(23,59,80,.1); border-color:rgba(23,59,80,.28); color:var(--navy); }
+    .meter { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; }
+    .meter-row { display:grid; grid-template-columns:90px 1fr 46px; gap:12px; align-items:center; margin-bottom:12px; }
+    .meter-row:last-child { margin-bottom:0; }
+    .bar { width:100%; height:10px; border-radius:999px; background:#eef0f2; overflow:hidden; }
+    .bar i { display:block; height:100%; width:0%; border-radius:inherit; }
+    .eff { background:linear-gradient(90deg,#2ec8c8,#1b8fa3); }
+    .out { background:linear-gradient(90deg,#f6c95d,#f0932b); }
+    .aro { background:linear-gradient(90deg,#ff8c72,#d85c5c); }
+    .sim-outcome { margin-top:16px; background:linear-gradient(180deg,#f8f9ff,#ffffff); border:1px solid var(--line); border-radius:16px; padding:16px; }
+    .state { display:inline-block; background:rgba(23,59,80,.08); color:var(--navy); border-radius:999px; padding:6px 10px; font-size:.7rem; font-weight:800; text-transform:uppercase; }
+    .matrix-item { border-left:4px solid var(--teal); padding:10px 12px; background:rgba(27,143,163,.04); border-radius:12px; margin-top:8px; }
+    .matrix-item-head { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:8px; }
+    .status-tag { display:inline-flex; padding:4px 8px; border-radius:999px; font-size:.68rem; font-weight:800; }
+    .status-tag.latent { background:rgba(27,143,163,.12); color:var(--teal); }
+    .status-tag.blocked { background:rgba(240,147,43,.12); color:var(--orange); }
+    .status-tag.critical { background:rgba(216,92,92,.12); color:var(--red); }
+    .diag-line { margin-top:18px; background:linear-gradient(180deg,#fffef4,#fffdf7); }
+    .diag-sentence { color:var(--navy); font-weight:800; }
+    .resp-grid { display:grid; grid-template-columns:repeat(3, minmax(200px,1fr)); gap:12px; }
+    .resp-card { cursor:pointer; background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:var(--shadow); }
+    .resp-card.selected { border-color:var(--navy); box-shadow:0 12px 28px rgba(23,59,80,.12); }
+    .resp-tag { display:inline-block; font-size:.7rem; color:var(--navy); font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px; }
+    .resp-card h4 { font-size:1.08rem; margin:0 0 8px; }
+    .resp-quote { background:rgba(23,59,80,.04); border-left:3px solid rgba(23,59,80,.3); padding:10px 12px; border-radius:12px; font-size:.92rem; color:var(--ink); margin:8px 0 10px; }
+    .result-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .inner-os-bubble, .theory-critique { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px; line-height:1.7; color:var(--ink); }
+    .step-cards { display:grid; grid-template-columns:repeat(2,minmax(200px,1fr)); gap:12px; }
+    .step-card { position:relative; background:#fff; border:1px solid var(--line); border-radius:18px; padding:18px 18px 16px; box-shadow:var(--shadow); cursor:pointer; }
+    .step-card.active { border-color:var(--navy); }
+    .step-card .step-num { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:10px; background:rgba(23,59,80,.08); font-weight:800; color:var(--navy); }
+    .step-card .step-time { font-size:.7rem; letter-spacing:.05em; color:var(--muted); text-transform:uppercase; margin-left:8px; }
+    .step-card h4 { margin:12px 0 8px; font-size:1.06rem; }
+    .step-card p { margin:0; font-size:.92rem; color:var(--muted); }
+    .step-card .visited-dot { position:absolute; right:14px; top:14px; width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(45,155,122,.12); }
+    .step-detail-grid { display:grid; grid-template-columns:repeat(3,minmax(150px,1fr)); gap:12px; margin-top:12px; }
+    .step-detail-col { background:#f7f9fb; border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+    .rangebox { margin-bottom:16px; }
+    .rangebox label { display:block; font-weight:800; color:var(--navy); margin-bottom:8px; }
+    .scoreline { display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--muted); font-size:.78rem; }
+    .rangevalue { font-size:1.2rem; font-weight:800; color:var(--navy); }
+    input[type="range"] { width:100%; }
+    textarea { width:100%; min-height:110px; border-radius:12px; border:1px solid var(--line); padding:12px 14px; resize:vertical; background:#fff; }
+    .feedback { margin-top:12px; padding:12px 14px; border-radius:12px; background:#f7fafb; border:1px solid var(--line); min-height:44px; }
+    .claim-box { border-top:4px solid var(--green); }
+    .claim-box.boundary { border-top-color:var(--orange); }
+    .claim-list { padding-left:1.2rem; line-height:1.9; }
+    .faq { background:rgba(255,255,255,.82); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); margin-bottom:12px; }
+    .faq summary { list-style:none; cursor:pointer; padding:18px 20px; font-weight:800; color:var(--navy); }
+    .faq summary::-webkit-details-marker { display:none; }
+    .faq-body { padding:0 20px 18px; line-height:1.7; color:var(--ink); }
+    .end-card { padding:30px 20px; background:linear-gradient(135deg,#173b50,#214f68); border-radius:28px; box-shadow:0 18px 40px rgba(23,59,80,.28); color:#fff; text-align:center; }
+    .end-card h2 { font-size:clamp(2rem,3vw,3rem); margin-bottom:10px; }
+    .end-card p { color:rgba(255,255,255,.86); font-size:1.04rem; line-height:1.8; }
+    .end-badges { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    .end-badges .tag { background:rgba(255,255,255,.12); color:#fff; }
+    .overview { position:fixed; inset:0; background:rgba(14,20,29,.45); display:none; z-index:40; }
+    .overview.show { display:block; }
+    .overview .wrap { max-width:1000px; margin:72px auto 0; background:#fff; border-radius:20px; padding:22px; box-shadow:0 30px 50px rgba(16,25,38,.25); }
+    .ov-grid { display:grid; grid-template-columns:repeat(3,minmax(180px,1fr)); gap:12px; }
+    .ov-item { background:#f7f9fb; border:1px solid var(--line); border-radius:14px; padding:12px 14px; cursor:pointer; }
+    .ov-item strong { display:block; margin-bottom:4px; color:var(--navy); }
+    .ov-item small { color:var(--muted); }
+    .deckbar { position:fixed; left:0; right:0; bottom:0; z-index:25; display:flex; align-items:center; gap:12px; padding:16px 18px; background:rgba(21,33,43,.92); color:#fff; backdrop-filter:blur(10px); }
+    .navbtn { width:40px; height:40px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:#fff; border-radius:12px; font-size:1.5rem; }
+    .page-num { min-width:80px; color:rgba(255,255,255,.86); font-weight:800; }
+    .slide-title { color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:320px; }
+    .dots { display:flex; align-items:center; gap:8px; margin-left:auto; }
+    .dot { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.35); }
+    .dot.active { background:#fff; transform:scale(1.25); }
+    .toast { position:fixed; right:24px; bottom:86px; background:rgba(23,59,80,.94); color:#fff; padding:12px 14px; border-radius:12px; opacity:0; transform:translateY(6px); pointer-events:none; transition:.2s ease; z-index:50; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    @media (max-width: 980px) {
+      .cover .wrap, .split, .sim-grid, .result-grid, .resp-grid { grid-template-columns:1fr; }
+      .meta-strip, .vote-grid, .grid-3, .ov-grid { grid-template-columns:1fr 1fr; }
+      .slide-head { align-items:flex-start; flex-direction:column; }
+      .deckbar { gap:8px; }
+      .slide-title { display:none; }
+      .dots { display:none; }
+    }
+    @media (max-width: 640px) {
+      .brand small, .badge-pill, .timer-chip { display:none; }
+      .meta-strip, .vote-grid, .grid-3, .step-cards, .ov-grid { grid-template-columns:1fr; }
+      .wrap { padding:0 8px; }
+      .deck { padding:18px 10px 90px; }
+      .step-detail-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" data-jump="0">
+      <span class="brand-mark">何</span>
+      <span>
+        <b>学科教学（英语）· 专业案例 01</b>
+        <small>何宇案例分析 · 闯关式翻页展示</small>
+      </span>
+    </a>
+    <span class="badge-pill" id="badgePill" title="完成各关互动即可解锁徽章">🏅 <span id="badgeCount">0</span>/5</span>
+    <button class="timer-chip" id="timerBtn" type="button" title="点击开始/暂停 12 分钟计时">
+      <span class="t-stage" id="timerStage">12:00 汇报计时</span>
+      <span class="t-time" id="timerTime">12:00</span>
+    </button>
+    <button class="btn-top" type="button" id="fsBtn">⛶ 全屏放映</button>
+  </header>
+  <div class="deck-progress" id="deckProgress"></div>
+
+  <main class="deck" id="deck">
+    <section class="slide cover active" data-nav="封面 · 核心问题" data-time="40">
+      <div class="wrap">
+        <div>
+          <p class="cover-eyebrow">专业案例卡 01 · 学科教学（英语）· 青少年心理发展与教育</p>
+          <h1>不是不会说，<br>而是<span>不敢被别人听见</span></h1>
+          <p class="cover-lead">他在网络游戏中能与国外玩家自如地用英语交流战术，却在英语课被点名时心跳加速、声音发抖，一句话也说不出来。本组不停留在“有没有天赋”的判断上，而是让<strong>证据、理论与教育行动</strong>彼此检验。</p>
+          <div class="meta-strip">
+            <div class="meta-item"><span>案例人物</span><strong>何宇（化名）· 14 岁 · 初二</strong></div>
+            <div class="meta-item"><span>分析焦点</span><strong>同伴评价与口语自我效能</strong></div>
+            <div class="meta-item"><span>核心理论</span><strong>可能自我 · SCCT · 4C · 自我决定理论</strong></div>
+            <div class="meta-item"><span>展示目标</span><strong>两周低风险教育支持方案</strong></div>
+          </div>
+          <p class="start-hint">按 <kbd>空格</kbd> 或 <kbd>→</kbd> 翻页 · 按 <kbd>O</kbd> 打开目录 · 页面右侧有 12 分钟计时</p>
+        </div>
+        <figure class="cover-fig">
+          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80" alt="插画：报名表前犹豫的笔尖">
+        </figure>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="案例现场 · 先认识何宇" data-time="60">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker">Case · 案例还原</div>
+            <h2>故事现场：先认识何宇</h2>
+            <p>以下只呈现案例材料明确提供的内容——分析的第一步，是不把推测当成事实。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>1 分钟</b></span>
+        </div>
+        <div class="split">
+          <figure class="figure-block">
+            <img src="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=900&q=80" alt="英语课堂上被点名时低头的男生">
+            <figcaption>▲ 课堂被点名的那一刻：明明知道答案，却一句话也说不出来。</figcaption>
+            <div class="callout orange" style="margin-top:14px">
+              <strong>本次分析的核心问题</strong><br>
+              何宇已经具备一定的英语交流经验，为什么在课堂上公开发言仍然如此困难？教师又该怎样创造安全、可选择、循序渐进的表达条件，帮助他重新建立开口的信心？
+            </div>
+          </figure>
+          <div>
+            <div class="card" style="border-left:8px solid var(--teal); box-shadow:var(--shadow);">
+              <h4>案例要点（材料原文归纳）</h4>
+              <ul>
+                <li>经常观看英文视频，能在网络游戏中用英语与国外玩家完成<strong>简单交流</strong>。</li>
+                <li>课堂被点名时<strong>心跳加快、声音发抖</strong>，明知答案也说不出话。</li>
+                <li>一次课堂展示被同学<strong>模仿口音、全班大笑</strong>；此后很少举手。</li>
+                <li>他说：“<strong>我可能根本没有语言天赋。</strong>”</li>
+                <li>老师认为他“基础不牢”建议背诵；父母报了<strong>难度更高的口语班</strong>。</li>
+                <li>英语节招主持人：<strong>很想报名，却在报名表前停了很久</strong>。</li>
+              </ul>
+            </div>
+            <div class="grid-3" style="margin-top:14px">
+              <div class="card softmint"><div class="stat">14 岁</div><p>初二，正处于同伴评价敏感的发展阶段。</p></div>
+              <div class="card softblue"><div class="stat">2 种</div><p>游戏交流与课堂公开展示的压力环境完全不同。</p></div>
+              <div class="card softpink"><div class="stat">1 次</div><p>明确的负面公开经历，可能影响参与，但不是唯一原因。</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="任务地图 · 五关挑战" data-time="30">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker level">Mission Map · 闯关模式</div>
+            <h2>五关挑战：成为“表达支持设计师”</h2>
+            <p>我们不是来给何宇打分的：每完成一关的现场互动，就能解锁一枚“支持徽章”。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>30 秒</b></span>
+        </div>
+        <div class="grid-3">
+          <div class="card" style="border-top:6px solid var(--teal)"><span class="badge">第 1 关 · 证据侦探</span><h4>事实还是推断？</h4><p>现场完成 6 条线索分类。</p></div>
+          <div class="card" style="border-top:6px solid var(--orange)"><span class="badge">第 2 关 · 自我画像师</span><h4>三种可能自我</h4><p>翻开卡片，看见他希望成为谁、又害怕成为谁。</p></div>
+          <div class="card" style="border-top:6px solid var(--yellow)"><span class="badge">第 3 关 · 机制分析员</span><h4>SCCT 路径模拟</h4><p>拨动条件，观察效能与预期如何决定行动。</p></div>
+          <div class="card" style="border-top:6px solid var(--red)"><span class="badge">第 4 关 · 方案设计师</span><h4>教师决策沙盘</h4><p>三种回应，三种截然不同的心理后果。</p></div>
+          <div class="card" style="border-top:6px solid var(--navy)"><span class="badge">第 5 关 · 任务导演</span><h4>两周分级实验</h4><p>把任务做成台阶，而不是做成跳崖。</p></div>
+          <div class="card softmint"><div class="stat" id="mapBadgeNum">0/5</div><h4>已解锁徽章</h4><div id="mapBadges" style="margin-top:8px"><span class="tag unknown">待解锁</span></div></div>
+        </div>
+        <div class="callout">
+          <strong>汇报节奏（12 分钟）</strong><br>
+          抛出问题与案例还原（2 分钟）→ 现场投票与证据分类（2.5 分钟）→ 理论机制：可能自我 + SCCT（2.5 分钟）→ 教师决策沙盘（1 分钟）→ 两周实验方案（2 分钟）→ 校准主张与答辩（2 分钟）。
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="交互① · 现场破冰投票" data-time="50">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker">Interaction 01 · 认知冲突</div>
+            <h2>如果你是英语老师，你的第一反应是什么？</h2>
+            <p>请现场投票：你认为导致何宇在课堂上“知道答案却说不出话”的最根本原因是什么？</p>
+          </div>
+          <span class="time-chip">建议用时 <b>50 秒</b></span>
+        </div>
+        <div class="lab">
+          <div class="lab-head">
+            <div><h3>【现场投票】何宇口语阻滞的症结在于——</h3><p>先凭直觉选择，再看认知分布与误判诊断。</p></div>
+            <span class="lab-pill">交互 ① · 全班投票</span>
+          </div>
+          <div class="vote-grid" id="voteGrid">
+            <button class="vote-option" data-opt="A" type="button">
+              <div class="vote-opt-head"><span class="vote-letter">A</span><span class="vote-opt-title">基础不牢，课文熟练度不足</span></div>
+              <p class="vote-opt-desc">教师式直觉：词汇提取慢，应加大早读背诵与朗读强度。</p>
+              <div><div class="vote-bar-track"><div class="vote-bar-fill" id="barA"></div></div><div class="vote-percent" id="pctA" style="display:none"></div></div>
+            </button>
+            <button class="vote-option" data-opt="B" type="button">
+              <div class="vote-opt-head"><span class="vote-letter">B</span><span class="vote-opt-title">意志薄弱，抗挫能力欠缺</span></div>
+              <p class="vote-opt-desc">说教式直觉：被笑一次就缩回去，该“狠狠逼自己一把”。</p>
+              <div><div class="vote-bar-track"><div class="vote-bar-fill" id="barB"></div></div><div class="vote-percent" id="pctB" style="display:none"></div></div>
+            </button>
+            <button class="vote-option" data-opt="C" type="button">
+              <div class="vote-opt-head"><span class="vote-letter">C</span><span class="vote-opt-title">评价威胁导致的应激阻断</span></div>
+              <p class="vote-opt-desc">心理学透镜：同伴嘲笑引发急性焦虑，言语工作记忆被阻断。</p>
+              <div><div class="vote-bar-track"><div class="vote-bar-fill" id="barC"></div></div><div class="vote-percent" id="pctC" style="display:none"></div></div>
+            </button>
+            <button class="vote-option" data-opt="D" type="button">
+              <div class="vote-opt-head"><span class="vote-letter">D</span><span class="vote-opt-title">训练规格低，欠缺高阶集训</span></div>
+              <p class="vote-opt-desc">家长式直觉：直接报高端外教班，突破口语瓶颈。</p>
+              <div><div class="vote-bar-track"><div class="vote-bar-fill" id="barD"></div></div><div class="vote-percent" id="pctD" style="display:none"></div></div>
+            </button>
+          </div>
+          <div class="btn-row">
+            <button class="btn primary" id="voteRevealBtn" type="button">揭晓理论诊断与误区分析</button>
+            <button class="btn ghost" id="voteResetBtn" type="button">重置投票</button>
+          </div>
+          <div class="reveal-box" id="voteFeedback">
+            <h4 style="color:#8a5707; margin-bottom:8px;">理论诊断：A、B、D 恰恰构成了压垮何宇的“系统性误判”</h4>
+            <p>案例证据显示：他经常看英文视频、在网游中与国外玩家战术沟通——<strong>英语感知与语义组织能力完全达标</strong>。A 误把“应激状态下的生理抑制”当成“认知储备不足”；D 盲目拔高难度，只会削弱胜任感；B 则把心理困境归咎于意志力。只有 <strong>C</strong> 锚定本质：<strong>不是语言能力差，而是高评价威胁场景下的效能崩塌与生理阻滞。</strong></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="第 1 关 · 证据侦探（交互②）" data-time="90">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker level">第 1 关 · 证据侦探 · Interaction 02</div>
+            <h2>把事实、推断与自我归因分开</h2>
+            <p>逐条点击分类，立刻得到判定与理由。六条全部完成，即可解锁第 1 关徽章。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>1.5 分钟</b></span>
+        </div>
+        <div class="lab">
+          <div class="score-line"><span id="sortScore">已完成 0 / 6</span><span id="sortRight">正确 0</span><button class="btn ghost" type="button" id="sortReset">重新挑战</button></div>
+          <div id="sortList"></div>
+          <div class="verdict" id="sortVerdict"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="证据链校准 · 未知信息" data-time="40">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker">Evidence Board · 校准看板</div>
+            <h2>同一个何宇：他不是不会说</h2>
+            <p>严谨的分析绝不脑补事实——也要诚实地列出材料没有提供的信息。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>40 秒</b></span>
+        </div>
+        <div class="split">
+          <figure class="figure-block">
+            <img src="https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&w=900&q=80" alt="戴耳机用英语交流的少年">
+            <figcaption>▲ 关键反证：戴上耳机、坐进游戏，他能用英语与国外玩家交流——<b>能力从未消失</b>。</figcaption>
+          </figure>
+          <div>
+            <div class="grid-2">
+              <article class="card" style="border-left:5px solid var(--teal)"><span class="tag fact">可观察事实</span><ul><li>游戏中的简单英语交流</li><li>被点名时心跳加快、声音发抖</li><li>被笑后很少举手</li></ul></article>
+              <article class="card" style="border-left:5px solid var(--orange)"><span class="tag infer">他人评价</span><ul><li>老师：“基础不牢，多背诵”</li><li>父母：报更高难度的口语班</li><li>同学：模仿其口音（负面反馈源）</li></ul></article>
+            </div>
+            <div class="callout yellow" style="margin-top:14px">
+              <strong>必须诚实保留的“未知信息（Unknowns）”</strong>
+              <ul><li>他的书面英语实际水平处于哪个百分位？</li><li>被嘲笑的“口音”是语音偏误，还是地方口音在青春期被恶意放大？</li><li>在一对一的安全成人关系中，他能否进行简短口语交流？</li></ul>
+            </div>
+            <div class="callout"><strong>第 1 关核心结论</strong> 何宇的“语言能力”从未消失，被消灭的仅仅是他在高评价威胁环境下的<strong>表达许可与安全感</strong>。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="第 2 关 · 可能自我（交互③）" data-time="60">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker level">第 2 关 · 自我画像师 · Interaction 03</div>
+            <h2>报名表前的心灵三棱镜</h2>
+            <p>点击翻开三张卡片，看看究竟是什么力量在拉扯他握笔的手。三张全部翻开后即可解锁第 2 关徽章。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>1 分钟</b></span>
+        </div>
+        <div class="split">
+          <div>
+            <div class="flipgrid">
+              <div class="flip" data-flip="1"><div class="flipinner"><div class="flipfront"><div class="kicker" style="font-size:0.78rem">点击翻卡 01</div><b>希望自我 · Hoped-for Self</b><span>“我希望成为怎样的人？”</span></div><div class="flipback"><b>聚光灯下的自如表达者</b><p>渴望像在游戏里指挥队友那样，在英语节的舞台上发光——<b>动力来源</b>：他很想报名，担心不报名就永远无法知道自己能不能做到。</p></div></div></div>
+              <div class="flip" data-flip="2"><div class="flipinner"><div class="flipfront"><div class="kicker" style="font-size:0.78rem">点击翻卡 02</div><b>期待自我 · Ought-to Self</b><span>“别人希望我成为什么样？”</span></div><div class="flipback"><b>完美背诵的高分模范生</b><p>承载着“背诵熟练、不出错”与“高难度班尖子”的期许——<b>外在压力</b>：老师要我背，父母送我进班，我必须达标。</p></div></div></div>
+              <div class="flip" data-flip="3"><div class="flipinner"><div class="flipfront"><div class="kicker" style="font-size:0.78rem">点击翻卡 03</div><b>恐惧自我 · Feared Self</b><span>“我最害怕变成怎样？”</span></div><div class="flipback"><b>再次被哄笑的“无天赋丑角”</b><p>创伤记忆深植脑海——<b>防御性阻抗</b>：恐惧自我像巨石一样，压住了他握笔的手。</p></div></div></div>
+            </div>
+          </div>
+          <div>
+            <figure class="figure-block"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="报名表前悬停的笔"><figcaption>▲ 为什么“停在报名表前”是本案例最关键的行为证据。</figcaption></figure>
+            <div class="callout" style="margin-top:14px"><strong>关键推理：停留 ≠ 没动机</strong> 如果只是没有动机，他会直接走开；如果只是能力不足，他也不会反复权衡“不报名就永远无法知道”这件事。<strong>停留本身说明希望与恐惧同时在线</strong>。</div>
+            <div class="callout orange"><strong>小结</strong> 三股力量同时存在：希望自我提供趋近动力，恐惧自我提供回避力量；他人的期待与恐惧自我指向同一个被评价的场景。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="第 3 关 · SCCT 模拟器（交互④）" data-time="90">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker level">第 3 关 · 心理机制分析员 · Interaction 04</div>
+            <h2>SCCT 实验室：改变条件，看路径怎么变</h2>
+            <p>社会认知生涯理论：学习经验 → 自我效能 × 结果预期 → 行动。拨动三组条件，观察右侧仪表的实时联动。任意操作一次，即可解锁第 3 关。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>1.5 分钟</b></span>
+        </div>
+        <div class="lab">
+          <div class="lab-head">
+            <div><h3>路径模拟器</h3><p>先保持“案例现状”，再逐组切换为理想条件，观察行为预测的变化。</p></div>
+            <span class="lab-pill">交互 ④ · 因果模拟</span>
+          </div>
+          <div class="sim-grid">
+            <div>
+              <div class="sim-control">
+                <h4>① 同伴评价环境（言语 / 社会说服）</h4>
+                <div class="chip-row" data-group="peer">
+                  <button class="chip on" type="button" data-w="-26">模仿口音、全班哄笑（现状）</button>
+                  <button class="chip" type="button" data-w="2">中立安静、无特别反应</button>
+                  <button class="chip" type="button" data-w="26">包容鼓励、具体肯定内容</button>
+                </div>
+              </div>
+              <div class="sim-control" style="margin-top:10px">
+                <h4>② 教师反馈模式（是否提供掌握经验）</h4>
+                <div class="chip-row" data-group="teacher">
+                  <button class="chip on" type="button" data-w="-16">“基础不牢，先把课文背熟”</button>
+                  <button class="chip" type="button" data-w="4">不置可否，仅纠错语法</button>
+                  <button class="chip" type="button" data-w="30">“先录 1 分钟，你决定给谁听”</button>
+                </div>
+              </div>
+              <div class="sim-control" style="margin-top:10px">
+                <h4>③ 任务难度与生理唤醒</h4>
+                <div class="chip-row" data-group="task">
+                  <button class="chip on" type="button" data-w="-22">直接全班演讲（高危）</button>
+                  <button class="chip" type="button" data-w="10">3—4 人小组发言 1 分钟</button>
+                  <button class="chip" type="button" data-w="26">一对一录音 / 语音 2 分钟</button>
+                </div>
+              </div>
+              <div class="btn-row">
+                <button class="btn ghost" type="button" id="simPreset">载入案例现状</button>
+                <button class="btn primary" type="button" id="simIdeal">一键切到“理想支持组合”</button>
+              </div>
+            </div>
+            <div>
+              <div class="meter" aria-live="polite">
+                <div class="meter-row"><span>自我效能</span><div class="bar"><i class="eff" id="barEff"></i></div><b id="numEff">0</b></div>
+                <div class="meter-row"><span>结果预期</span><div class="bar"><i class="out" id="barOut"></i></div><b id="numOut">0</b></div>
+                <div class="meter-row"><span>生理唤醒</span><div class="bar"><i class="aro" id="barAro"></i></div><b id="numAro">0</b></div>
+              </div>
+              <div class="sim-outcome" id="simOutcome">
+                <span class="state" id="simState">—</span>
+                <h4>行动倾向预测</h4>
+                <p id="simText">调整左侧条件查看结果。</p>
+              </div>
+              <div class="callout" style="margin-top:12px"><strong>为什么“背诵＋拔高难度”无效</strong> SCCT 中最强的效能来自<strong>成功经验本身</strong>。背诵不提供“当众开口成功”的经验；只有把难度降到能成功的水平、把反馈改成具体肯定，效能与预期才会一起上升。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="4C × SDT · 诊断靶点" data-time="50">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker">Theory · 理论诊断</div>
+            <h2>4C 与自我决定理论：锁定最亟需支持的维度</h2>
+            <p>教育支持不能眉毛胡子一把抓。对照案例事实，本组精准定位了“重灾区”与“破局支点”。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>50 秒</b></span>
+        </div>
+        <div class="grid-2">
+          <div class="card" style="border-top:6px solid var(--navy)">
+            <h4>Savickas 4C 职业适应力 · 四维审查</h4>
+            <div class="matrix-item"><div class="matrix-item-head"><strong>生涯关注 Concern</strong><span class="status-tag latent">潜能尚存</span></div><p>想当英语节主持人，担心不报名就不知道自己是否能做到。</p></div>
+            <div class="matrix-item"><div class="matrix-item-head"><strong>生涯控制 Control</strong><span class="status-tag blocked">严重受挫</span></div><p>【破局靶点】他感到自己被嘲笑、被安排所支配，几乎完全失去掌控感。</p></div>
+            <div class="matrix-item"><div class="matrix-item-head"><strong>生涯好奇 Curiosity</strong><span class="status-tag latent">具备基础</span></div><p>主动看英文视频、与外国玩家互动，对英语文化有天然好奇。</p></div>
+            <div class="matrix-item" style="border-left:4px solid var(--red)"><div class="matrix-item-head"><strong>生涯自信 Confidence</strong><span class="status-tag critical">核心崩塌</span></div><p>【最需支持】“我可能没有语言天赋”这句话，标志着口语自信已降至冰点。</p></div>
+          </div>
+          <div class="card" style="border-top:6px solid var(--orange)">
+            <h4>Deci &amp; Ryan 自我决定理论 · 三种基本需要</h4>
+            <div class="matrix-item" style="border-left:4px solid var(--red)"><div class="matrix-item-head"><strong>归属需要 Relatedness</strong><span class="status-tag critical">核心创伤源</span></div><p>【最需支持】同伴模仿口音、全班哄笑，让他失去了被安全接纳的底座。</p></div>
+            <div class="matrix-item" style="border-left:4px solid var(--yellow)"><div class="matrix-item-head"><strong>胜任需要 Competence</strong><span class="status-tag blocked">持续受阻</span></div><p>【最需支持】他在游戏中的交流胜任从未被承认，强制拔高难度不断强化“我不行”的感受。</p></div>
+            <div class="matrix-item"><div class="matrix-item-head"><strong>自主需要 Autonomy</strong><span class="status-tag blocked">被外部操控</span></div><p>他被动接受背诵要求与报班安排，几乎没有“按自己的节奏来”的空间。</p></div>
+          </div>
+        </div>
+        <div class="callout diag-line"><strong>诊断一句话</strong> <span class="diag-sentence">两周方案的核心靶点 = 修复 <strong>归属感</strong> 与 <strong>胜任感</strong>，并把选择权交还给他（自主）。</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="第 4 关 · 教师决策沙盘（交互⑤）" data-time="60">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker level">第 4 关 · 支持方案设计师 · Interaction 05</div>
+            <h2>情境模拟：报名表前的凝固时刻</h2>
+            <p>英语节报名截止前一小时，你走过何宇身旁，他握着报名表，笔尖悬在纸上。你会说什么？</p>
+          </div>
+          <span class="time-chip">建议用时 <b>1 分钟</b></span>
+        </div>
+        <div class="lab">
+          <div class="lab-head">
+            <div><h3>何宇：“老师，我……我刚才在看这个主持人招募。”（眼神回避，身体微绷）</h3><p>点击选择你的回应方式。</p></div>
+            <span class="lab-pill">交互 ⑤ · 教学决策</span>
+          </div>
+          <div class="resp-grid">
+            <div class="resp-card opt-a" data-choice="A" role="button" tabindex="0">
+              <span class="resp-tag">A. 权威加压激励型</span>
+              <h4>“男子汉要有骨气，越怕越要硬上！”</h4>
+              <div class="resp-quote">“被笑两句算什么？赶紧填表报上！明天开始我天天先点你朗读，脱敏就好了！”</div>
+              <p>出发点是好的，却完全无视恐惧作用机制，反而施加了他难以承受的压力。</p>
+            </div>
+            <div class="resp-card opt-b" data-choice="B" role="button" tabindex="0">
+              <span class="resp-tag">B. 保护性回避型</span>
+              <h4>“压力太大就算了，别难为自己。”</h4>
+              <div class="resp-quote">“以后英语课老师也不点你了，安心把笔试考好就行，演讲不适合所有人。”</div>
+              <p>虽然缓解了当下的焦虑，却也扼杀了希望自我，把“我不行”坐实为缺陷认同。</p>
+            </div>
+            <div class="resp-card opt-c" data-choice="C" role="button" tabindex="0">
+              <span class="resp-tag">C. 弹性支架赋能型 ★</span>
+              <h4>“舞台不止有一种发光方式。”</h4>
+              <div class="resp-quote">“招募还有双人搭档和幕后播音。愿意先跟我录一段 30 秒广播吗？慢慢探索。”</div>
+              <p>把选择权交还给他，提供低风险的微阶梯，呵护刚刚萌芽的胜任感。</p>
+            </div>
+          </div>
+          <div class="verdict" id="sandboxResult">
+            <div class="result-grid">
+              <div>
+                <h5 style="color:var(--navy); margin-bottom:8px;">何宇的内心独白</h5>
+                <div class="inner-os-bubble" id="innerVoiceTxt">请先点击上方一个回应选项……</div>
+              </div>
+              <div>
+                <h5 style="color:var(--navy); margin-bottom:8px;">理论机制与心理学后果审查</h5>
+                <div class="theory-critique" id="theoryCritiqueTxt">请先点击上方一个回应选项……</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="第 5 关 · 两周分级实验（交互⑥）" data-time="90">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker level">第 5 关 · 课堂任务导演 · Interaction 06</div>
+            <h2>两周分级口语微步实验阶梯</h2>
+            <p>严格遵循评价标准：<strong>绝对不把“全班公开演讲”作为第一步！</strong>点击四个阶段查看执行细节，四个阶段全部浏览后即可解锁第 5 关徽章。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>1.5 分钟</b></span>
+        </div>
+        <div class="split" style="grid-template-columns: 1.5fr 0.9fr;">
+          <div>
+            <div class="step-cards" id="stepDeck">
+              <div class="step-card active" data-step="1"><span class="visited-dot"></span><span class="step-num">1</span><span class="step-time">第 1—3 天</span><h4>无评价私密胜任重建</h4><p>游戏 / 动画片段配音录制，仅音频不露脸。</p></div>
+              <div class="step-card" data-step="2"><span class="visited-dot"></span><span class="step-num">2</span><span class="step-time">第 4—7 天</span><h4>1 对 1 安全成人闲聊</h4><p>课后 5 分钟游戏战术英语微交谈，无打分无纠错。</p></div>
+              <div class="step-card" data-step="3"><span class="visited-dot"></span><span class="step-num">3</span><span class="step-time">第 8—10 天</span><h4>同盟同伴微协作</h4><p>与亲善同桌录制广播站双人播报词。</p></div>
+              <div class="step-card" data-step="4"><span class="visited-dot"></span><span class="step-num">4</span><span class="step-time">第 11—14 天</span><h4>自控风险的弹性决策</h4><p>自主选择英语节角色：幕后播音 vs 双人主持。</p></div>
+            </div>
+            <div class="card" id="stepDetailPanel" style="margin-top:12px;">
+              <div class="step-detail-grid">
+                <div class="step-detail-col"><h5>✔ 教师具体操作</h5><p id="stepAction">点击上方阶段查看细节。</p></div>
+                <div class="step-detail-col"><h5>◎ 预期新证据</h5><p id="stepEvidence">观察学生是否能在无评价情境中完成。</p></div>
+                <div class="step-detail-col"><h5>→ 推进到下一步的条件</h5><p id="stepCriteria">达到“能说、愿意说、稍微紧张但能持续”的基线。</p></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <figure class="figure-block"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="逐级向上的阶梯"><figcaption>▲ 每一级只增加一个变量：听众人数。风险递增：独处 → 一对一 → 小组 → 自主决定。</figcaption></figure>
+            <div class="callout" style="margin-top:12px"><strong>分级设计的关键</strong> 每一级都记录两件事：“我做成了什么”和“紧张度（0—10）”。只有前后对照，紧张度变化才具有可比性。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="安全底线 · 观察记录卡" data-time="30">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker">Ethics · 安全底线</div>
+            <h2>方案的停止标准与过程记录</h2>
+            <p>保护学生的心理安全，高于一切展示成果。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>30 秒</b></span>
+        </div>
+        <div class="split">
+          <div>
+            <div class="callout red" style="margin-top:0"><strong>⚠ 严格的停止与回退标准（Stopping Criteria）</strong><p>若在任一阶段出现明显恶心、持续手抖、眩晕、回避上学或明显情绪低落——<strong>立即无条件终止升阶</strong>，退回无评价的纯趣味输入阶段，并建议专业心理辅导介入。</p></div>
+            <div class="callout"><strong>三条分析边界</strong><p>① 不把焦虑状态下的表现等同于语言能力不足；② 不凭一次展示经历诊断心理障碍；③ 不根据初中阶段的一次口语成败推断终身职业上限。</p></div>
+          </div>
+          <div class="card">
+            <h4>教师观察记录卡（课堂演示用）</h4>
+            <div class="rangebox">
+              <label>活动后自评紧张程度（1—5 分）</label>
+              <div class="scoreline"><span>1 分 · 不紧张</span><span class="rangevalue" id="anxVal">3</span><span>5 分 · 非常紧张</span></div>
+              <input type="range" min="1" max="5" value="3" id="anxRange">
+            </div>
+            <div class="rangebox">
+              <label>活动后自评参与意愿（1—5 分）</label>
+              <div class="scoreline"><span>1 分 · 不愿意</span><span class="rangevalue" id="willVal">3</span><span>5 分 · 非常愿意</span></div>
+              <input type="range" min="1" max="5" value="3" id="willRange">
+            </div>
+            <label for="obsNotes" style="font-weight:850; color:var(--navy); font-size:0.9rem;">观察到的具体表现 / 学生反馈</label>
+            <textarea id="obsNotes" placeholder="例如：选择与同桌录 30 秒对话，提前准备了关键词；活动后说‘虽然紧张，但比想象中容易’……"></textarea>
+            <div class="btn-row">
+              <button class="btn primary" type="button" id="saveRecordBtn">生成记录摘要</button>
+              <button class="btn ghost" type="button" id="clearRecordBtn">清空</button>
+            </div>
+            <div class="feedback" id="recordFeedback"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="校准主张 · 断定与不断定" data-time="50">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker">Calibration · 校准后主张</div>
+            <h2>基于证据的断定与绝不逾越的边界</h2>
+            <p>高质量的学术汇报不仅在于展示发现了什么，更在于坦率承认不能断定什么。</p>
+          </div>
+          <span class="time-chip">建议用时 <b>50 秒</b></span>
+        </div>
+        <div class="grid-2">
+          <div class="card claim-box positive">
+            <h4 style="color:var(--green); font-size:1.1rem;">✔ 基于证据，我们较有把握认为</h4>
+            <ul class="claim-list">
+              <li>何宇具备基本的英语跨文化口语沟通能力与动机，<strong>不存在严重的语言认知发展缺陷</strong>。</li>
+              <li>课堂言语冻结的本质是<strong>同伴评价创伤</strong>引发的情境性焦虑：交感神经过度唤醒阻断了言语提取通路。</li>
+              <li>“背诵加码”与“拔高难度训练”强化了负向的结果预期与恐惧自我，导致效能感进一步崩塌。</li>
+              <li>两周阶梯微步实验是修复<strong>归属感</strong>与<strong>胜任感</strong>的最合理低风险路径。</li>
+            </ul>
+          </div>
+          <div class="card claim-box boundary">
+            <h4 style="color:#8d5909; font-size:1.1rem;">⚠ 证据不足，我们坚决不能断定</h4>
+            <ul class="claim-list">
+              <li>不能因单次展示失利与自我贬低，断定他“没有语言天赋”或属于“固定型心智”。</li>
+              <li>不能依据现有材料断定他患有临床意义的社交焦虑障碍（SAD），<strong>严禁非专业贴标签</strong>。</li>
+              <li>不能用初中阶段一次口语焦虑的成败，草率推导其终身职业选择与发展上限。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout yellow"><strong>结局讨论：如果两周后他仍没报名，算失败吗？</strong> 不算。成功指标不是“逼他站上舞台”，而是帮助他重建对自我效能的客观认知，重新获得选择的自主权。</div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="答辩防御库（交互⑦）" data-time="180">
+      <div class="wrap">
+        <div class="slide-head">
+          <div>
+            <div class="kicker">Q&amp;A · 3 分钟现场质询</div>
+            <h2>评委高频挑战 · 防御库</h2>
+            <p>点击展开答辩要点——把每个结论都指回证据。</p>
+          </div>
+          <span class="time-chip">质询环节 <b>3 分钟</b></span>
+        </div>
+        <div>
+          <details class="faq"><summary>质询 1：“口音不纯难道不该多背诵吗？老师建议背诵到底有什么错？”</summary><div class="faq-body"><strong>答辩要点（指向证据与机制）：</strong> 背诵解决的是语言输入熟练度，但何宇在网游中已证明具备即时语义提取能力。他的核心阻碍是输出时的评价恐惧。在高度紧张下强制背诵，会传递“你被笑是因为你能力差”的错误归因。</div></details>
+          <details class="faq"><summary>质询 2：“四五十人的大班，老师哪有时间做两周个性化辅导？”</summary><div class="faq-body"><strong>答辩要点（指向可行性）：</strong> 每一步都是低成本微干预：配音是全班常规作业的可选通道；5 分钟闲聊发生在课间。更重要的是同伴生态的重构——在班会上树立“口音是交流特色而非评判标准”的规范。</div></details>
+          <details class="faq"><summary>质询 3：“两周后他仍不敢报名，方案是不是失败了？”</summary><div class="faq-body"><strong>答辩要点（指向评价标准）：</strong> 绝对不！方案的成功指标不是“必须登台当主持”，而是“重建对自我效能的客观认知，重新获得选择的自主权”。</div></details>
+          <details class="faq"><summary>质询 4：“直接替他报名，给他一个锻炼机会不行吗？”</summary><div class="faq-body"><strong>答辩要点（指向自主需要）：</strong> 替学生做决定会削弱自主需要，而且当众展示的难度已经超出了他当前愿意尝试的范围。一旦再次失败，将坐实恐惧自我。</div></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-nav="收束 · 带走的一句话" data-time="30">
+      <div class="wrap">
+        <div class="end-card">
+          <h2>我们要做的，不是催促学生“勇敢一点”</h2>
+          <p>而是为他营造一个值得信任的课堂环境，以及一次次可以做到的小成功。<br>从证据出发，理解学生；从支持出发，设计成长。</p>
+          <div class="end-badges" id="endBadges"></div>
+          <div class="btn-row" style="justify-content:center; margin-top:20px;">
+            <button class="btn orange" type="button" id="copySummaryBtn">📋 复制小组总结句</button>
+            <button class="btn" style="border-color:#ffffff55; color:#fff;" type="button" id="endRestartBtn">↺ 回到封面</button>
+          </div>
+          <p style="margin-top:14px; font-size:0.84rem;" id="copyMsg"></p>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <h4>小组汇报总结句</h4>
+          <p>现有材料显示，何宇并非缺乏英语口语交流经验：他在网络游戏中能进行简单的英语交流，但他在课堂公开表达时明显紧张，并在经历同伴模仿和嘲笑之后减少了举手。这提示：课堂表达困难可能与负面评价经历、生理唤醒以及对再次被嘲笑的预期有关，并进一步影响其口语自我效能与参与选择。因此，教师不宜仅凭课堂沉默认定他基础薄弱，也不宜直接要求他面向全班展示；更合适的做法是先营造尊重、安全的课堂氛围，再通过学生可选择、难度递进的口语任务来积累成功经验。两周实验的重��是了解感受、观察变化、共同调整，而不是用一次成败给学生下结论。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="overview" id="overview" role="dialog" aria-modal="true" aria-label="幻灯片目录">
+    <div class="wrap">
+      <h3>幻灯片目录（按 O 关闭）</h3>
+      <div class="ov-grid" id="ovGrid"></div>
+    </div>
+  </div>
+
+  <div class="deckbar">
+    <button class="navbtn" type="button" id="prevBtn" aria-label="上一页">‹</button>
+    <button class="navbtn" type="button" id="nextBtn" aria-label="下一页">›</button>
+    <span class="page-num" id="pageNum">1 / 15</span>
+    <span class="slide-title" id="barTitle">封面 · 核心问题</span>
+    <div class="dots" id="dots"></div>
+    <button class="btn-top" type="button" id="ovBtn">目录 <kbd>O</kbd></button>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const ovGrid = document.getElementById('ovGrid');
+    const deckProgress = document.getElementById('deckProgress');
+    const pageNum = document.getElementById('pageNum');
+    const barTitle = document.getElementById('barTitle');
+    const dotsWrap = document.getElementById('dots');
+    const overview = document.getElementById('overview');
+    const badgeCount = document.getElementById('badgeCount');
+    const mapBadges = document.getElementById('mapBadges');
+    const endBadges = document.getElementById('endBadges');
+    const toast = document.getElementById('toast');
+    let current = 0;
+    let timerRunning = false;
+    let totalSeconds = 12 * 60;
+    let timer = null;
+    const badgeNames = ['证据侦探','自我画像','SCCT','方案设计','两周实验'];
+
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(()=> toast.classList.remove('show'), 1500);
+    }
+
+    function renderOverview(){
+      ovGrid.innerHTML = slides.map((slide, idx) => `<div class="ov-item" data-index="${idx}"><strong>${idx + 1}. ${slide.dataset.nav}</strong><small>${slide.dataset.time}秒</small></div>`).join('');
+      ovGrid.querySelectorAll('.ov-item').forEach(item => item.addEventListener('click', () => { current = Number(item.dataset.index); updateSlides(); hideOverview(); }));
+      dotsWrap.innerHTML = slides.map((_, idx) => `<span class="dot ${idx === current ? 'active' : ''}"></span>`).join('');
+      const endBadgeHtml = badgeNames.map(name => `<span class="tag">${name}</span>`).join('');
+      endBadges.innerHTML = endBadgeHtml;
+    }
+
+    function updateSlides(){
+      slides.forEach((slide, idx) => slide.classList.toggle('active', idx === current));
+      pageNum.textContent = `${current + 1} / ${slides.length}`;
+      barTitle.textContent = slides[current].dataset.nav;
+      const pct = ((current + 1) / slides.length) * 100;
+      deckProgress.style.setProperty('--progress', pct + '%');
+      deckProgress.style.background = `linear-gradient(90deg, rgba(23,59,80,.1) 0%, rgba(23,59,80,.1) ${pct}%, rgba(23,59,80,.06) ${pct}%, rgba(23,59,80,.06) 100%)`;
+      const progressBar = deckProgress;
+      progressBar.style.setProperty('background', 'rgba(23,59,80,.08)');
+      progressBar.style.setProperty('background-image', 'linear-gradient(90deg,var(--navy),var(--teal),var(--orange))');
+      progressBar.style.setProperty('background-size', `${pct}% 100%`);
+      progressBar.style.setProperty('background-repeat', 'no-repeat');
+      dotsWrap.innerHTML = slides.map((_, idx) => `<span class="dot ${idx === current ? 'active' : ''}"></span>`).join('');
+      const badgeCountValue = document.querySelectorAll('#mapBadges .tag:not(.unknown)').length;
+      badgeCount.textContent = badgeCountValue;
+      const badges = ['证据侦探','自我画像','SCCT','方案设计','两周实验'];
+      mapBadges.innerHTML = badges.map((label, idx) => `<span class="tag ${idx < badgeCountValue ? '' : 'unknown'}">${idx < badgeCountValue ? label : '待解锁'}</span>`).join('');
+    }
+
+    function goNext(){ current = Math.min(current + 1, slides.length - 1); updateSlides(); }
+    function goPrev(){ current = Math.max(current - 1, 0); updateSlides(); }
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+    document.getElementById('prevBtn').addEventListener('click', goPrev);
+    document.querySelector('.brand').addEventListener('click', (e) => { e.preventDefault(); current = 0; updateSlides(); });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); goNext(); }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goPrev(); }
+      if (e.key.toLowerCase() === 'o') { e.preventDefault(); overview.classList.toggle('show'); }
+      if (e.key === 'Escape' && overview.classList.contains('show')) overview.classList.remove('show');
+    });
+
+    document.getElementById('ovBtn').addEventListener('click', () => overview.classList.toggle('show'));
+    document.getElementById('fsBtn').addEventListener('click', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    });
+
+    function updateTimerDisplay(){
+      const minutes = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      const label = `${String(minutes).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+      document.getElementById('timerTime').textContent = label;
+      document.getElementById('timerStage').textContent = `${label} 汇报计时`;
+    }
+
+    function toggleTimer(){
+      timerRunning = !timerRunning;
+      if (timerRunning) {
+        clearInterval(timer);
+        timer = setInterval(() => {
+          if (totalSeconds > 0) {
+            totalSeconds -= 1;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timer);
+            timerRunning = false;
+            showToast('12 分钟计时结束');
+          }
+        }, 1000);
+      } else {
+        clearInterval(timer);
+      }
+    }
+    document.getElementById('timerBtn').addEventListener('click', toggleTimer);
+    updateTimerDisplay();
+
+    const voteMap = {A:0,B:0,C:0,D:0};
+    const voteOptions = [...document.querySelectorAll('.vote-option')];
+    voteOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        const key = option.dataset.opt;
+        voteMap[key] += 1;
+        option.classList.add('selected');
+        const total = Object.values(voteMap).reduce((s,v)=>s+v, 0) || 1;
+        ['A','B','C','D'].forEach(k => {
+          const bar = document.getElementById(`bar${k}`);
+          const pct = document.getElementById(`pct${k}`);
+          const val = Math.round((voteMap[k] / total) * 100);
+          if (bar) bar.style.width = `${val}%`;
+          if (pct) { pct.textContent = `${val}%`; pct.style.display = 'block'; }
+        });
+        showToast(`已投票：${key}`);
+      });
+    });
+    document.getElementById('voteResetBtn').addEventListener('click', () => {
+      Object.keys(voteMap).forEach(k => voteMap[k] = 0);
+      voteOptions.forEach(opt => opt.classList.remove('selected'));
+      ['A','B','C','D'].forEach(k => {
+        document.getElementById(`bar${k}`).style.width = '0%';
+        document.getElementById(`pct${k}`).style.display = 'none';
+      });
+      showToast('已重置投票');
+    });
+    document.getElementById('voteRevealBtn').addEventListener('click', () => {
+      document.getElementById('voteFeedback').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast('已揭晓理论诊断');
+    });
+
+    const sortItems = [
+      { text: '何宇在游戏里能用英语与国外玩家沟通', type: 'fact' },
+      { text: '他被同学模仿口音后很少举手', type: 'fact' },
+      { text: '他在课堂上明知答案却说不出话', type: 'fact' },
+      { text: '他可能没有语言天赋', type: 'infer' },
+      { text: '他是因为“基础不牢”才不敢开口', type: 'infer' },
+      { text: '他最担心再次被嘲笑', type: 'infer' },
+    ];
+    let sortProgress = 0;
+    function renderSortList(){
+      const list = document.getElementById('sortList');
+      list.innerHTML = sortItems.map((item, idx) => `
+        <div class="sort-item">
+          <div class="statement">${idx + 1}. ${item.text}</div>
+          <div class="actions">
+            <button type="button" data-choice="fact" data-index="${idx}">事实</button>
+            <button type="button" data-choice="infer" data-index="${idx}">推断</button>
+          </div>
+        </div>
+      `).join('');
+      list.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.index);
+        const choice = btn.dataset.choice;
+        const correct = choice === sortItems[idx].type;
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        if (correct) {
+          sortProgress += 1;
+        }
+        const total = sortItems.length;
+        document.getElementById('sortScore').textContent = `已完成 ${sortProgress} / ${total}`;
+        document.getElementById('sortRight').textContent = `正确 ${sortProgress}`;
+        document.getElementById('sortVerdict').textContent = correct ? '正确：这个判断与材料证据相符。' : `错误：该句更接近${sortItems[idx].type === 'fact' ? '事实' : '推断'}。`;
+        if (sortProgress === total) {
+          badgeCount.textContent = String(Number(badgeCount.textContent) + 1 || 1);
+          const badge = document.createElement('span');
+          badge.className = 'tag';
+          badge.textContent = '证据侦探';
+          mapBadges.appendChild(badge);
+          showToast('第 1 关已解锁');
+        }
+      }));
+    }
+    document.getElementById('sortReset').addEventListener('click', () => {
+      sortProgress = 0;
+      document.getElementById('sortScore').textContent = '已完成 0 / 6';
+      document.getElementById('sortRight').textContent = '正确 0';
+      document.getElementById('sortVerdict').textContent = '';
+      renderSortList();
+    });
+    renderSortList();
+
+    document.querySelectorAll('.flip').forEach(flip => {
+      flip.addEventListener('click', () => {
+        flip.classList.toggle('is-flipped');
+        const rare = document.querySelectorAll('.flip.is-flipped').length;
+        if (rare >= 3) {
+          const badge = document.createElement('span');
+          badge.className = 'tag';
+          badge.textContent = '自我画像';
+          if (![...mapBadges.querySelectorAll('.tag')].some(tag => tag.textContent === '自我画像')) {
+            mapBadges.appendChild(badge);
+          }
+          showToast('第 2 关已解锁');
+        }
+      });
+    });
+
+    const simState = { peer: -26, teacher: -16, task: -22 };
+    function syncSim(){
+      const eff = Math.max(0, Math.min(100, 50 + simState.peer + simState.teacher + simState.task + 12));
+      const out = Math.max(0, Math.min(100, 52 + simState.peer / 2 + simState.teacher / 3 + simState.task / 2));
+      const aro = Math.max(0, Math.min(100, 68 - simState.peer / 2 - simState.teacher / 3 - simState.task / 2));
+      document.getElementById('barEff').style.width = eff + '%';
+      document.getElementById('barOut').style.width = out + '%';
+      document.getElementById('barAro').style.width = aro + '%';
+      document.getElementById('numEff').textContent = Math.round(eff);
+      document.getElementById('numOut').textContent = Math.round(out);
+      document.getElementById('numAro').textContent = Math.round(aro);
+      if (eff < 35 || out < 35) {
+        document.getElementById('simState').textContent = '高风险';
+        document.getElementById('simText').textContent = '他更可能回避、逃离表达场景，选择沉默或减少参与。';
+      } else if (eff > 60 && out > 55 && aro < 55) {
+        document.getElementById('simState').textContent = '可尝试';
+        document.getElementById('simText').textContent = '在低风险、低评价场景中，他有可能先尝试说一句或录一段音频。';
+      } else {
+        document.getElementById('simState').textContent = '稳定';
+        document.getElementById('simText').textContent = '他将更愿意在安全环境中参与，特别是在结构清晰的任务中。';
+      }
+    }
+    document.querySelectorAll('.chip-row').forEach(group => {
+      const key = group.dataset.group;
+      group.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+          chip.classList.add('on');
+          simState[key] = Number(chip.dataset.w);
+          syncSim();
+          const badge = document.createElement('span');
+          badge.className = 'tag';
+          badge.textContent = 'SCCT';
+          if (![...mapBadges.querySelectorAll('.tag')].some(tag => tag.textContent === 'SCCT')) {
+            mapBadges.appendChild(badge);
+          }
+          showToast('SCCT 路径已更新');
+        });
+      });
+    });
+    document.getElementById('simPreset').addEventListener('click', () => {
+      simState.peer = -26; simState.teacher = -16; simState.task = -22;
+      document.querySelectorAll('.chip-row').forEach(group => { group.querySelectorAll('.chip').forEach(c => c.classList.remove('on')); });
+      document.querySelectorAll('.chip-row[data-group="peer"] .chip')[0].classList.add('on');
+      document.querySelectorAll('.chip-row[data-group="teacher"] .chip')[0].classList.add('on');
+      document.querySelectorAll('.chip-row[data-group="task"] .chip')[0].classList.add('on');
+      syncSim();
+    });
+    document.getElementById('simIdeal').addEventListener('click', () => {
+      simState.peer = 26; simState.teacher = 30; simState.task = 26;
+      document.querySelectorAll('.chip-row').forEach(group => { group.querySelectorAll('.chip').forEach(c => c.classList.remove('on')); });
+      document.querySelectorAll('.chip-row[data-group="peer"] .chip')[2].classList.add('on');
+      document.querySelectorAll('.chip-row[data-group="teacher"] .chip')[2].classList.add('on');
+      document.querySelectorAll('.chip-row[data-group="task"] .chip')[2].classList.add('on');
+      syncSim();
+      showToast('理想支持组合已启用');
+    });
+    syncSim();
+
+    document.querySelectorAll('.resp-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const choice = card.dataset.choice;
+        document.querySelectorAll('.resp-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const content = {
+          A: {
+            voice: '“我又一次被逼着站在别人眼里，觉得自己只是被展示的对象。”',
+            critique: '加压型回应强化了威胁感：他会把这类冲突解释为“我要变得更强”，而不是“我可以被安全地尝试”。结果是回避与羞耻会被进一步内化。'
+          },
+          B: {
+            voice: '“那我就不试了吧，反正不适合我。”',
+            critique: '回避型回应虽然缓解了当下的压力，但会使他把“我不敢”等同于“我不行”，进而剥夺渴望与选择权。'
+          },
+          C: {
+            voice: '“……也许不是全班演讲，我可以先录一段，给自己一个试的机会。”',
+            critique: '这是最符合 SCCT / SDT 的回应：通过低风险、可选择的任务重建胜任感，避免把评价威胁直接升级为羞耻体验，且保留了自主性。'
+          }
+        };
+        document.getElementById('innerVoiceTxt').textContent = content[choice].voice;
+        document.getElementById('theoryCritiqueTxt').textContent = content[choice].critique;
+        showToast('已选择回应方式');
+      });
+    });
+
+    const stepDetail = {
+      1: { action: '让他在无评价情境中完成 30—60 秒的配音任务，老师不露脸、不打分，只给出一个问题：你最喜欢的游戏 / 动画片段怎么说。', evidence: '如果他能维持 30 秒以上并愿意重复录制，说明他在低威胁情境中仍能组织语言；这是对“我没有语言天赋”的直接反证。', criteria: '成功记录一段可重复完成的音频，且紧张度从 8/10 降到 5/10 以下。' },
+      2: { action: '一对一安全成人闲聊 5 分钟，围绕游戏战术、角色设定、近期感受，完全不纠错、不评分。', evidence: '若他愿意说三句以上、提出问题或谈自己的体验，说明归属感和表达许可正在恢复。', criteria: '允许自己说出自己的想法，而不是只回答“老师提问”的机械句子。' },
+      3: { action: '与亲善同桌用 30 秒到 1 分钟的广播词合作录音，老师仅提供结构模板和可选角色。', evidence: '如果他愿意在同伴合作下表达，并且较少回避，说明他开始从“被评价”转向“被允许参与”。', criteria: '可以在小组情境中持有一句完整表达，并愿意复述一次。' },
+      4: { action: '让他自主选择：幕后播音、双人主持或仅作为准备者，老师不强制登台。', evidence: '如果他能在选择中表达“我愿意尝试”，说明自主需要与胜任感正在重建。', criteria: '能明确说明“我想参与哪一种角色”，而不仅仅是“老师决定我该做什么”。' }
+    };
+    document.querySelectorAll('.step-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const step = card.dataset.step;
+        document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        document.getElementById('stepAction').textContent = stepDetail[step].action;
+        document.getElementById('stepEvidence').textContent = stepDetail[step].evidence;
+        document.getElementById('stepCriteria').textContent = stepDetail[step].criteria;
+        const badge = document.createElement('span');
+        badge.className = 'tag';
+        badge.textContent = '两周实验';
+        if (![...mapBadges.querySelectorAll('.tag')].some(tag => tag.textContent === '两周实验')) {
+          mapBadges.appendChild(badge);
+        }
+      });
+    });
+
+    const anxRange = document.getElementById('anxRange');
+    const willRange = document.getElementById('willRange');
+    const anxVal = document.getElementById('anxVal');
+    const willVal = document.getElementById('willVal');
+    [anxRange, willRange].forEach(range => {
+      range.addEventListener('input', () => {
+        const val = range.value;
+        if (range === anxRange) anxVal.textContent = val;
+        else willVal.textContent = val;
+      });
+    });
+    document.getElementById('saveRecordBtn').addEventListener('click', () => {
+      const note = document.getElementById('obsNotes').value.trim() || '学生愿意参与并表达了个人体验与感受。';
+      const summary = `本次活动后，学生自评紧张程度为 ${anxVal.textContent}/5，参与意愿为 ${willVal.textContent}/5。观察到：${note}`;
+      document.getElementById('recordFeedback').textContent = summary;
+      showToast('记录摘要已生成');
+    });
+    document.getElementById('clearRecordBtn').addEventListener('click', () => {
+      document.getElementById('obsNotes').value = '';
+      document.getElementById('recordFeedback').textContent = '';
+      anxRange.value = 3; willRange.value = 3;
+      anxVal.textContent = '3'; willVal.textContent = '3';
+      showToast('已清空记录');
+    });
+
+    document.getElementById('copySummaryBtn').addEventListener('click', async () => {
+      const summary = '现有材料显示，何宇并非缺乏英语口语交流经验：他在网络游戏中能进行简单的英语交流，但在课堂公开表达时明显紧张，并在经历同伴模仿和嘲笑之后减少了举手。';
+      try { await navigator.clipboard.writeText(summary); document.getElementById('copyMsg').textContent = '已复制：' + summary; } catch { document.getElementById('copyMsg').textContent = '复制失败，请手动复制。'; }
+      showToast('总结句已复制');
+    });
+    document.getElementById('endRestartBtn').addEventListener('click', () => { current = 0; updateSlides(); });
+
+    renderOverview();
+    updateSlides();
+    overview.addEventListener('click', (e) => { if (e.target === overview) overview.classList.remove('show'); });
+  </script>
+</body>
+</html>
